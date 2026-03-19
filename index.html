@@ -465,7 +465,7 @@
   const REFRESH_MS = 60_000; // auto-refresh ทุก 60 วินาที
 
   // ลำดับคอลัมน์: อาทิตย์ → เสาร์
-  const DAY_ORDER = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+  const DAY_ORDER = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 
   /* ===================================
      Helpers
@@ -506,11 +506,13 @@
   const WEEKEND_DAYS  = ['เสาร์', 'อาทิตย์'];
 
   function buildGrid(slots) {
-    // Group by day name
+    // Group by day name (normalize "พฤหัส" → "พฤหัสบดี" in case API varies)
+    const DAY_NORMALIZE = { 'พฤหัส': 'พฤหัสบดี' };
     const byDay = {};
     for (const s of slots) {
-      if (!byDay[s.day]) byDay[s.day] = { date_display: s.date_display, times: [] };
-      byDay[s.day].times.push(s.time);
+      const day = DAY_NORMALIZE[s.day] || s.day;
+      if (!byDay[day]) byDay[day] = { date_display: s.date_display, times: [] };
+      byDay[day].times.push(s.time);
     }
     // Sort times numerically (prevents "10:00" sorting before "08:30")
     for (const k in byDay) {
