@@ -481,30 +481,6 @@
   /* ===================================
      Build 7-column grid
      =================================== */
-  // Fixed time slots shown every Saturday and Sunday (independent of API)
-  // แก้ไขช่วงเวลาและ interval ได้ที่นี่
-  const WEEKEND_START    = '08:30';
-  const WEEKEND_END      = '11:30';
-  const WEEKEND_INTERVAL = 30; // นาที
-
-  function generateWeekendSlots() {
-    const slots = [];
-    const [sh, sm] = WEEKEND_START.split(':').map(Number);
-    const [eh, em] = WEEKEND_END.split(':').map(Number);
-    let cur = sh * 60 + sm;
-    const end = eh * 60 + em;
-    while (cur <= end) {
-      const h = String(Math.floor(cur / 60)).padStart(2, '0');
-      const m = String(cur % 60).padStart(2, '0');
-      slots.push(`${h}:${m}`);
-      cur += WEEKEND_INTERVAL;
-    }
-    return slots;
-  }
-
-  const WEEKEND_SLOTS = generateWeekendSlots();
-  const WEEKEND_DAYS  = ['เสาร์', 'อาทิตย์'];
-
   function buildGrid(slots) {
     // Group by day name (normalize "พฤหัส" → "พฤหัสบดี" in case API varies)
     const DAY_NORMALIZE = { 'พฤหัส': 'พฤหัสบดี' };
@@ -530,16 +506,7 @@
       const card = document.createElement('div');
       card.className = 'day-card';
 
-      // วันเสาร์/อาทิตย์: ใช้ข้อมูลจาก API ถ้ามี, fallback เป็น fixed slots ถ้าไม่มี
-      if (WEEKEND_DAYS.includes(dayName) && !byDay[dayName]) {
-        card.classList.add('has-slots');
-        card.innerHTML = `
-          <div class="day-name">${dayName}</div>
-          <div class="divider-line"></div>
-          <div class="slots-wrap">
-            ${WEEKEND_SLOTS.map(t => `<div class="slot-box">${t}</div>`).join('')}
-          </div>`;
-      } else if (byDay[dayName]) {
+      if (byDay[dayName]) {
         card.classList.add('has-slots');
         const { date_display, times } = byDay[dayName];
         card.innerHTML = `
